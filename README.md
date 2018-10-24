@@ -170,5 +170,72 @@ end
 <% end %>
 ```
 
+#### authlogic_example
+
 ```
+sudo gem install authlogic
+# config/environment.rb
+config.gem "authlogic"
+
+script/plugin install git://github.com/binarylogic/authlogic.git
+
+script/generate session user_session
+
+# app/models/user_session.rb
+class UserSession_session.rb
+end
+
+script/generate model user
+
+t.string :login, :null => false
+t.string :email, :null => false
+t.string :crypted_password, :null => false
+t.string :password_salt, :null => false
+t.string :persistence_token, :null => false
+t.string :single_access_token, :null => false
+t.string :perishable_token, :null => false
+
+t.integer :login_count, :null => false, :default => 0
+t.integer :failed_login_count, :null => false, :default => 0
+t.datetime :last_request_at
+t.datetime :current_login_at
+t.datetime :last_login_at
+t.string :current_login_ip
+t.string :last_login_ip
+
+class User < ActiveRecord::Base
+  acts_as_authentic do |c|
+    c.my_config_option = my_value
+  end
+end
+
+script/generate controller user_sessions
+
+# config/routes.rb
+map.resource :user_session
+map.root :controller => "user_session", :action => "new"
+
+# app/controllers/application.rb
+class ApplicationController < ActiveController::Base
+  filter_parameter_logging :password, :password_confirmation
+  helper_method :current_usre_session, :current_user
+  
+  private
+    def current_user_session
+      return @current_user_session if defined?(@current_user_session)
+      @current_user_sesssion = UserSession.find
+    end
+    def current_user
+      return @current_user if defined?(@curretn_user)
+      @current_user = current_user_session && current_user_session.user
+    end
+end
+
+# config/routes.rb
+map.resources :account, :controller => "user"
+map.resources :users
+
+script/generate controller users
+
+
 ```
